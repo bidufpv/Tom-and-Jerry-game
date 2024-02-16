@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOM and JERRY</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Honk&family=Lato:wght@700&display=swap" rel="stylesheet">
+    <style>
+        *{
+    margin: 0;
+    padding:0;
+}
+body{
+    background-color: black;
+    overflow: hidden;
+}
+.gameContainer{
+    background-image: url(bg.avif);
+    background-repeat: no-repeat;
+    background-size: 100vw 100vh;
+    width: 100%;
+    height: 100vh;
+}
+
+.tom{
+    background-image: url(tom.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 250px;
+    height: 150px;
+    position: absolute;
+    bottom:0;
+    left: 52px;
+}
+
+.obstacle{
+    width: 166px;
+    height: 113px;
+    background-image: url(jerry.png);
+    background-size: cover;
+    position: absolute;
+    bottom: 0;
+    left: 44vw;
+}
+
+.animatetom{
+    animation: tom 0.6s linear;
+}
+
+.obstacleAni{
+    animation: obstacleAni 5s linear infinite;
+}
+
+.gameOver{
+    position: relative;
+    top:63px;
+    font-size: 53px;
+    text-align: center; 
+    font-weight: bolder;
+    color: red;
+    font-family: 'Honk', system-ui;
+}
+
+#scoreCont{
+    font-size: 25px;
+    color: red;
+    font-weight: bolder;
+    position: absolute;
+    right: 45px;
+    top: 31px;
+    border: 2px solid black;
+    padding: 10px;
+    font-family: 'Honk', system-ui;
+    border-radius: 10px;
+}
+
+@keyframes tom{
+    0%{
+        bottom: 0;
+    }
+    50%{
+        bottom: 422px;
+    }
+    100%{
+        bottom: 0; 
+    }
+}
+
+@keyframes obstacleAni{
+    0%{
+        left: 100vw;
+    }
+    100%{
+        left: -10vw;
+    }
+}
+
+.logo img{
+       width: 7vw;
+       height: 15vh;
+}
+    </style>
+    
+</head>
+<body>
+    <div class="gameContainer">
+        <div class="logo">
+            <img src="tom1.png" alt="">
+        </div>
+        <div class="gameOver">TOM and JERRY</div>
+        <div class="tom"></div>
+        <div id="scoreCont">Your Score: 0</div>
+        <div class="obstacle obstacleAni"></div>
+    </div>
+    <script>
+        
+score = 0;
+cross = true;
+
+audio = new Audio('theme.mp3');
+audiogo = new Audio('gameoverone.mp3');
+setTimeout(() => {
+    audio.play()
+}, 100);
+document.onkeydown = function (e) {
+    console.log("Key code is: ", e.keyCode)
+    if (e.keyCode == 38) {
+        tom = document.querySelector('.tom');
+        tom.classList.add('animatetom');
+        setTimeout(() => {
+            tom.classList.remove('animatetom')
+        }, 700);
+    }
+    if (e.keyCode == 39) {
+        tom = document.querySelector('.tom');
+        tomX = parseInt(window.getComputedStyle(tom, null).getPropertyValue('left'));
+        tom.style.left = tomX + 112 + "px";
+    }
+    if (e.keyCode == 37) {
+        tom = document.querySelector('.tom');
+        tomX = parseInt(window.getComputedStyle(tom, null).getPropertyValue('left'));
+        tom.style.left = (tomX - 112) + "px";
+    }
+}
+
+setInterval(() => {
+    tom = document.querySelector('.tom');
+    gameOver = document.querySelector('.gameOver');
+    obstacle = document.querySelector('.obstacle');
+
+    dx = parseInt(window.getComputedStyle(tom, null).getPropertyValue('left'));
+    dy = parseInt(window.getComputedStyle(tom, null).getPropertyValue('top'));
+
+    ox = parseInt(window.getComputedStyle(obstacle, null).getPropertyValue('left'));
+    oy = parseInt(window.getComputedStyle(obstacle, null).getPropertyValue('top'));
+
+    offsetX = Math.abs(dx - ox);
+    offsetY = Math.abs(dy - oy);
+    // console.log(offsetX, offsetY)
+    if (offsetX < 73 && offsetY < 52) {
+        gameOver.innerHTML = "Game Over - Reload to Play Again"
+        obstacle.classList.remove('obstacleAni')
+        audiogo.play();
+        setTimeout(() => {
+            audiogo.pause();
+            audio.pause();
+        }, 1000);
+    }
+    else if (offsetX < 145 && cross) {
+        score += 1;
+        updateScore(score);
+        cross = false;
+        setTimeout(() => {
+            cross = true;
+        }, 1000);
+        setTimeout(() => {
+            aniDur = parseFloat(window.getComputedStyle(obstacle, null).getPropertyValue('animation-duration'));
+            newDur = aniDur - 0.1;
+            obstacle.style.animationDuration = newDur + 's';
+            console.log('New animation duration: ', newDur)
+        }, 500);
+
+    }
+
+}, 10);
+
+function updateScore(score) {
+    scoreCont.innerHTML = "Your Score: " + score
+}
+    </script>
+</body>
+</html>
